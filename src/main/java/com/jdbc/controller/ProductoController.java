@@ -1,8 +1,7 @@
 package com.jdbc.controller;
 
 import java.sql.Connection;
-
-
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,18 +16,24 @@ import com.jdbc.factory.ConexionFactory;
 public class ProductoController {
 
 	public int modificar(String nombre, String descripcion,Integer cantidad, Integer id) throws SQLException {
-		Connection con = new ConexionFactory().RecuperaConexion();
-		Statement statement = con.createStatement();
+		Connection conexion = new ConexionFactory().RecuperaConexion();
 		
-		statement.execute("UPTADE FROM PRODUCTOS SET"
-				+ "NOMBRE = '" + nombre + "'"
-						+ ", DESCRIPCION = '" + descripcion + "'" 
-						+ ", CANTIDAD = " + cantidad
-						+ " ID = " + id);
+		PreparedStatement statement = conexion.prepareStatement("UPTADE FROM PRODUCTOS SET"
+				+ "NOMBRE = ?"
+				+ ", DESCRIPCION = ?"
+				+ ", CANTIDAD = ?"
+				+ " ID = ?" );
+		
+		statement.setString(1, nombre);
+		statement.setString(2, descripcion);
+		statement.setInt(0, cantidad);
+		statement.setInt(4, id);
+		
+		statement.execute();
 		
 		int updateacount = statement.getUpdateCount();
 		
-		con.close();
+		conexion.close();
 		
 		return updateacount;
 		
@@ -36,11 +41,19 @@ public class ProductoController {
 
 	public int eliminar(Integer id) throws SQLException {
 		
-		Connection con= new ConexionFactory().RecuperaConexion();
-		Statement statement = con.createStatement();
-		statement.execute("DELETE FROM PRODUCTOS WHERE =" + id); //query para eliminar de la tabla de productos de acuerdo al id por parametro
+		Connection conexion= new ConexionFactory().RecuperaConexion();
+		
+		PreparedStatement statement = conexion.prepareStatement("DELETE FROM PRODUCTOS WHERE = ? ");
+		
+		statement.setInt(1, id);
+		
+		statement.execute();
+		
+		conexion.close();
 		
 		return statement.getUpdateCount(); //metodo para conocer cuantos registros son eliminados despues de una query returna un int
+		
+		
 		
 		
 	}
@@ -49,11 +62,14 @@ public class ProductoController {
 		
 		//Conexion base de datos, creacion de query en java con Statement y ejecucion de query  para recuperar informacion de base datos//
 		
-        Connection con = new ConexionFactory().RecuperaConexion();
+        Connection conexion = new ConexionFactory().RecuperaConexion();
         
-		Statement statement = con.createStatement();
+		Statement con = conexion.createStatement();
 		
-		statement.execute("SELECT ID, NOMBRE, DESCRIPCION, CANTIDAD FROM PRODUCTOS");
+		PreparedStatement statement = conexion.prepareStatement("SELECT ID, NOMBRE, DESCRIPCION, CANTIDAD FROM PRODUCTOS");
+		
+		statement.execute();
+		
 		ResultSet resultset =  statement.getResultSet();
 		
 		// Aqui pongo un Map porque no hay un objeto especifico para devolver//
@@ -79,18 +95,31 @@ public class ProductoController {
 
 	//Metodo que toma un insert de la base de datos y lo asigna a cada parte columna del mismo y returna el id como clave generada del insert
     public void guardar(Map<String, String> producto) throws SQLException {
-		Connection con = new ConexionFactory().RecuperaConexion();
-		Statement statement = con.createStatement();
-		statement.execute("INSERT INTO PRODUCTOS(NOMBRE, DESCRIPCION, CANTIDAD) " +
-		"VALUES('" + producto.get("NOMBRE") + "' , '" +
-				producto.get("DESCRIPCION") + "' , " + 
-					producto.get("CANTIDAD") + ")" , statement.RETURN_GENERATED_KEYS);
+    	
+		Connection conexion = new ConexionFactory().RecuperaConexion();
+		
+		Statement con = conexion.createStatement();
+		//Prepara un statement donde se le dice que tiene tres values//
+		
+		PreparedStatement statement = conexion.prepareStatement("INSERT INTO PRODUCTOS(NOMBRE, DESCRIPCION, CANTIDAD)" +
+				"VALUES(? ? ?)", con.RETURN_GENERATED_KEYS);
+		
+		//Configura por default cada valor del statement// 
+		
+		statement.setString(1, producto.get("NOMBRE"));
+		statement.setString(2, producto.get("DESCRIPCION"));
+		statement.setInt(3, Integer.valueOf(producto.get("CANTIDAD")));
+		
+		
+		statement.execute();
 		
 		ResultSet resultset = statement.getGeneratedKeys(); //obtiene las llaves generadas que retornara//
 		
 		while(resultset.next()) {
 			System.out.println(String.format("fue insertado el producto con ID %d", resultset.getInt(1)));
 		}
+		
+		conexion.close();
 		
 	}
 
