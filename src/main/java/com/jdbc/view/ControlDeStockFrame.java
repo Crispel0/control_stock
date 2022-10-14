@@ -57,6 +57,7 @@ public class ControlDeStockFrame extends JFrame {
         modelo.addColumn("Identificador del Producto");
         modelo.addColumn("Nombre del Producto");
         modelo.addColumn("Descripción del Producto");
+        modelo.addColumn("Cantidad");
 
         cargarTabla();
 
@@ -200,13 +201,19 @@ public class ControlDeStockFrame extends JFrame {
 
         Optional.ofNullable(modelo.getValueAt(tabla.getSelectedRow(), tabla.getSelectedColumn()))
                 .ifPresentOrElse(fila -> {
-                    Integer id = (Integer) modelo.getValueAt(tabla.getSelectedRow(), 0);
-
-                    this.productoController.eliminar(id);
+                    Integer id = Integer.valueOf(modelo.getValueAt(tabla.getSelectedRow(), 0).toString()); //Convierte el getvalueAt a tipo String y lo asigna a id//
+                    
+                    int cantidadEliminada;
+                    try {
+					cantidadEliminada = this.productoController.eliminar(id); //Asigno a un int porque eliminar returna un int//
+					} catch (SQLException e) {
+						e.printStackTrace();
+						throw new RuntimeException(e);
+					}
 
                     modelo.removeRow(tabla.getSelectedRow());
 
-                    JOptionPane.showMessageDialog(this, "Item eliminado con éxito!");
+                    JOptionPane.showMessageDialog(this, cantidadEliminada + " Item eliminado con éxito!");
                 }, () -> JOptionPane.showMessageDialog(this, "Por favor, elije un item"));
     }
 
@@ -220,7 +227,7 @@ public class ControlDeStockFrame extends JFrame {
     	}
 
         try {
-            // TODO
+            // TODO¿¿
             // productos.forEach(producto -> modelo.addRow(new Object[] { "id", "nombre",
             // "descripcion" }));
         } catch (Exception e) {

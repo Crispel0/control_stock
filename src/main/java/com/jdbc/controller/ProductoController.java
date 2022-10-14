@@ -20,8 +20,15 @@ public class ProductoController {
 		// TODO
 	}
 
-	public void eliminar(Integer id) {
-		// TODO
+	public int eliminar(Integer id) throws SQLException {
+		
+		Connection con= new ConexionFactory().RecuperaConexion();
+		Statement statement = con.createStatement();
+		statement.execute("DELETE FROM PRODUCTOS WHERE =" + id); //query para eliminar de la tabla de productos de acuerdo al id por parametro
+		
+		return statement.getUpdateCount(); //metodo para conocer cuantos registros son eliminados despues de una query returna un int
+		
+		
 	}
 
 	public List<Map<String, String>> listar() throws SQLException {
