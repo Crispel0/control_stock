@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jdbc.CreaConexion;
+
 public class ProductoController {
 
 	public void modificar(String nombre, String descripcion, Integer id) {
@@ -24,7 +26,8 @@ public class ProductoController {
 		
 		//Conexion base de datos, creacion de query en java con Statement y ejecucion de query  para recuperar informacion de base datos//
 		
-		Connection con = DriverManager.getConnection("jdbc:mysql://localhost/control_de_stock?useTimezone=true&ServerTimezone=UTC", "root", "Cr¡st¡@n_901");
+        Connection con = new CreaConexion().RecuperaConexion();
+        
 		Statement statement = con.createStatement();
 		
 		statement.execute("SELECT ID, NOMBRE, DESCRIPCION, CANTIDAD FROM PRODUCTOS");
