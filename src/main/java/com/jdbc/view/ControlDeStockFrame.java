@@ -6,6 +6,7 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Optional;
 
 import javax.swing.JButton;
@@ -228,6 +229,7 @@ public class ControlDeStockFrame extends JFrame {
     }
 
     private void guardar() {
+    	//Verifica si introducimos Datos
         if (textoNombre.getText().isBlank() || textoDescripcion.getText().isBlank()) {
             JOptionPane.showMessageDialog(this, "Los campos Nombre y Descripción son requeridos.");
             return;
@@ -235,7 +237,7 @@ public class ControlDeStockFrame extends JFrame {
 
         Integer cantidadInt;
 
-        try {
+        try { //Tomamos la Cantidad que nos pasen por pantalla
             cantidadInt = Integer.parseInt(textoCantidad.getText());
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, String
@@ -243,11 +245,21 @@ public class ControlDeStockFrame extends JFrame {
             return;
         }
 
-        // TODO
-        var producto = new Object[] { textoNombre.getText(), textoDescripcion.getText(), cantidadInt };
+        //Asigna lo que se obtenga a por el input a un HashMap de cada colummna de la base datos//
+        
+        var producto = new HashMap<String, String>(); 
+        producto.put("NOMBRE", textoNombre.getText()); 
+        producto.put("DESCRIPCION", textoDescripcion.getText()); 
+        producto.put("CANTIDAD", String.valueOf(cantidadInt));
+        
         var categoria = comboCategoria.getSelectedItem();
 
-        this.productoController.guardar(producto);
+        try {
+			this.productoController.guardar(producto);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException(e);
+		}
 
         JOptionPane.showMessageDialog(this, "Registrado con éxito!");
 

@@ -1,7 +1,8 @@
 package com.jdbc.controller;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
+
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -10,7 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.jdbc.CreaConexion;
+
+import com.jdbc.factory.ConexionFactory;
 
 public class ProductoController {
 
@@ -26,7 +28,7 @@ public class ProductoController {
 		
 		//Conexion base de datos, creacion de query en java con Statement y ejecucion de query  para recuperar informacion de base datos//
 		
-        Connection con = new CreaConexion().RecuperaConexion();
+        Connection con = new ConexionFactory().RecuperaConexion();
         
 		Statement statement = con.createStatement();
 		
@@ -54,8 +56,21 @@ public class ProductoController {
 		return resultado;
 	}
 
-    public void guardar(Object producto) {
-		// TODO
+	//Metodo que toma un insert de la base de datos y lo asigna a cada parte columna del mismo y returna el id como clave generada del insert
+    public void guardar(Map<String, String> producto) throws SQLException {
+		Connection con = new ConexionFactory().RecuperaConexion();
+		Statement statement = con.createStatement();
+		statement.execute("INSERT INTO PRODUCTOS(NOMBRE, DESCRIPCION, CANTIDAD) " +
+		"VALUES('" + producto.get("NOMBRE") + "' , '" +
+				producto.get("DESCRIPCION") + "' , " + 
+					producto.get("CANTIDAD") + ")" , statement.RETURN_GENERATED_KEYS);
+		
+		ResultSet resultset = statement.getGeneratedKeys(); //obtiene las llaves generadas que retornara//
+		
+		while(resultset.next()) {
+			System.out.println(String.format("fue insertado el producto con ID %d", resultset.getInt(1)));
+		}
+		
 	}
 
 }
