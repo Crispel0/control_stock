@@ -1,9 +1,11 @@
-package com.alura.jdbc.view;
+package com.jdbc.view;
 
 import java.awt.Color;
+
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.util.Optional;
 
 import javax.swing.JButton;
@@ -15,8 +17,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-import com.alura.jdbc.controller.CategoriaController;
-import com.alura.jdbc.controller.ProductoController;
+import com.jdbc.controller.CategoriaController;
+import com.jdbc.controller.ProductoController;
 
 public class ControlDeStockFrame extends JFrame {
 
@@ -44,7 +46,7 @@ public class ControlDeStockFrame extends JFrame {
 
         configurarTablaDeContenido(container);
 
-        configurarAccionesDelFormulario();
+        configurarAccionesDelFormulario(); 
     }
 
     private void configurarTablaDeContenido(Container container) {
@@ -208,7 +210,13 @@ public class ControlDeStockFrame extends JFrame {
     }
 
     private void cargarTabla() {
+    	try {
+    		
         var productos = this.productoController.listar();
+        
+    	}catch(SQLException e) {
+    		throw new RuntimeException(e);
+    	}
 
         try {
             // TODO

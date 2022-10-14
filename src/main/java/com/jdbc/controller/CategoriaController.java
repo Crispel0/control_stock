@@ -1,4 +1,4 @@
-package com.alura.jdbc.controller;
+package com.jdbc.controller;
 
 import java.util.ArrayList;
 import java.util.List;
