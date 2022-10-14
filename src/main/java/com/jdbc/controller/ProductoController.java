@@ -16,8 +16,22 @@ import com.jdbc.factory.ConexionFactory;
 
 public class ProductoController {
 
-	public void modificar(String nombre, String descripcion, Integer id) {
-		// TODO
+	public int modificar(String nombre, String descripcion,Integer cantidad, Integer id) throws SQLException {
+		Connection con = new ConexionFactory().RecuperaConexion();
+		Statement statement = con.createStatement();
+		
+		statement.execute("UPTADE FROM PRODUCTOS SET"
+				+ "NOMBRE = '" + nombre + "'"
+						+ ", DESCRIPCION = '" + descripcion + "'" 
+						+ ", CANTIDAD = " + cantidad
+						+ " ID = " + id);
+		
+		int updateacount = statement.getUpdateCount();
+		
+		con.close();
+		
+		return updateacount;
+		
 	}
 
 	public int eliminar(Integer id) throws SQLException {
