@@ -3,11 +3,15 @@ package com.jdbc.view;
 import java.awt.Container;
 
 
+
+
 import javax.swing.JFrame;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import com.jdbc.controller.CategoriaController;
+import com.jdbc.controller.ProductoController;
+import com.jdbc.modelo.Categoria;
 
 public class ReporteFrame extends JFrame {
 
@@ -17,6 +21,7 @@ public class ReporteFrame extends JFrame {
     private DefaultTableModel modelo;
 
     private CategoriaController categoriaController;
+    private ProductoController productoController;
 
     public ReporteFrame(ControlDeStockFrame controlDeStockFrame) {
         super("Reporte de produtos del stock");
@@ -46,9 +51,13 @@ public class ReporteFrame extends JFrame {
     private void cargaReporte() {
         var contenido = categoriaController.cargaReporte();
         
-        // TODO
-        contenido.forEach(fila -> modelo
-                .addRow(new Object[] {}));
-    }
-
-}
+        contenido.forEach(categoria -> {modelo
+                .addRow(new Object[] {categoria});});
+        
+        var productos = categoria.getProductos();
+        
+        productos.forEach(producto -> {modelo.addRow(new Object[] {
+        		"", producto.getNombre(), producto.getCantidad()
+        };
+        )})
+};

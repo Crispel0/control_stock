@@ -1,126 +1,78 @@
 package com.jdbc.controller;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 
 import com.jdbc.factory.ConexionFactory;
+import com.jdbc.modelo.Categoria;
+import com.jdbc.modelo.Producto;
 
 public class ProductoController {
-
+	
+	public ProductoController(){
+		
+		ProductoDao productoDao = new ProductoDao(new ConexionFactory().RecuperaConexion());
+	}
 	public int modificar(String nombre, String descripcion,Integer cantidad, Integer id) throws SQLException {
+		
 		Connection conexion = new ConexionFactory().RecuperaConexion();
 		
-		PreparedStatement statement = conexion.prepareStatement("UPTADE FROM PRODUCTOS SET"
-				+ "NOMBRE = ?"
-				+ ", DESCRIPCION = ?"
-				+ ", CANTIDAD = ?"
-				+ " ID = ?" );
-		
-		statement.setString(1, nombre);
-		statement.setString(2, descripcion);
-		statement.setInt(0, cantidad);
-		statement.setInt(4, id);
-		
-		statement.execute();
-		
-		int updateacount = statement.getUpdateCount();
-		
-		conexion.close();
-		
-		return updateacount;
-		
+		try(conexion){
+			
+			final PreparedStatement statement = conexion.prepareStatement("UPTADE FROM PRODUCTOS SET"
+					+ "NOMBRE = ?"
+					+ ", DESCRIPCION = ?"
+					+ ", CANTIDAD = ?"
+					+ " ID = ?");
+			
+			try(statement){
+				
+				statement.setString(1, nombre);
+				statement.setString(2, descripcion);
+				statement.setInt(3, cantidad);
+				statement.setInt(4, id);
+				
+				statement.execute();
+				
+				int updateacount = statement.getUpdateCount();
+			
+				return updateacount;
+		}
 	}
+}
 
 	public int eliminar(Integer id) throws SQLException {
 		
-		Connection conexion= new ConexionFactory().RecuperaConexion();
-		
-		PreparedStatement statement = conexion.prepareStatement("DELETE FROM PRODUCTOS WHERE = ? ");
-		
-		statement.setInt(1, id);
-		
-		statement.execute();
-		
-		conexion.close();
-		
-		return statement.getUpdateCount(); //metodo para conocer cuantos registros son eliminados despues de una query returna un int
-		
-		
-		
-		
-	}
-
-	public List<Map<String, String>> listar() throws SQLException {
-		
-		//Conexion base de datos, creacion de query en java con Statement y ejecucion de query  para recuperar informacion de base datos//
-		
-        Connection conexion = new ConexionFactory().RecuperaConexion();
-        
-		Statement con = conexion.createStatement();
-		
-		PreparedStatement statement = conexion.prepareStatement("SELECT ID, NOMBRE, DESCRIPCION, CANTIDAD FROM PRODUCTOS");
-		
-		statement.execute();
-		
-		ResultSet resultset =  statement.getResultSet();
-		
-		// Aqui pongo un Map porque no hay un objeto especifico para devolver//
-		
-		List<Map<String, String>> resultado = new ArrayList<>();
-		
-		//cada tipo resultset lo recorremos tomamos su valor y lo guardamos en un Map al final lo agregamos a resultado//
-		while(resultset.next()) {
-			Map<String, String> fila = new HashMap<>();
-			fila.put("ID", String.valueOf(resultset.getInt("ID"))); //Toma como llave el Id y valor ID de base Datos se debe colocar StringvalueOf porque no acepta int para convertirlo a String//
-			fila.put("NOMBRE", resultset.getString("NOMBRE"));
-			fila.put("DESCRIPCION", resultset.getString("DESCRIPCION"));
-			fila.put("CANTIDAD", String.valueOf(resultset.getInt("CANTIDAD")));
-			
-			resultado.add(fila);
-			
-		}
-	
-		con.close();
-				
-		return resultado;
-	}
-
-	//Metodo que toma un insert de la base de datos y lo asigna a cada parte columna del mismo y returna el id como clave generada del insert
-    public void guardar(Map<String, String> producto) throws SQLException {
-    	
 		Connection conexion = new ConexionFactory().RecuperaConexion();
+		//El try con recursos es para cerrar las conexiones
+		try(conexion){
+			PreparedStatement statement = conexion.prepareStatement("DELETE FROM PRODUCTOS WHERE = ?");
+			try(statement){
+			statement.setInt(1, id);
 		
-		Statement con = conexion.createStatement();
-		//Prepara un statement donde se le dice que tiene tres values//
-		
-		PreparedStatement statement = conexion.prepareStatement("INSERT INTO PRODUCTOS(NOMBRE, DESCRIPCION, CANTIDAD)" +
-				"VALUES(? ? ?)", con.RETURN_GENERATED_KEYS);
-		
-		//Configura por default cada valor del statement// 
-		
-		statement.setString(1, producto.get("NOMBRE"));
-		statement.setString(2, producto.get("DESCRIPCION"));
-		statement.setInt(3, Integer.valueOf(producto.get("CANTIDAD")));
-		
-		
-		statement.execute();
-		
-		ResultSet resultset = statement.getGeneratedKeys(); //obtiene las llaves generadas que retornara//
-		
-		while(resultset.next()) {
-			System.out.println(String.format("fue insertado el producto con ID %d", resultset.getInt(1)));
+			return statement.getUpdateCount(); //metodo para conocer cuantos registros son eliminados despues de una query returna un int
+			
+			}
 		}
+	}
+
+	public List<Producto> listar() throws SQLException{
 		
-		conexion.close();
+			return ProductoDao.listar();
 		
 	}
 
+	 //Metodo crea una conexion y la asigna y lo guarda//
+    public void guardar(Producto producto, Integer categoria) throws SQLException  {
+    	
+    	ProductoDao productoDao = new ProductoDao(new ConexionFactory().RecuperaConexion());
+    	
+    	//Asigna una categoria a el producto y despues se guarda en el productoDao//
+    	
+    	producto.setCategoriaId(categoria);
+    	productoDao.guardarProducto(producto);
+    }	
 }
