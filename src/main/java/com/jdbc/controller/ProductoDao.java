@@ -99,33 +99,83 @@ public class ProductoDao{
         }
 	}
 
-	public static List<Categoria> listar(Integer categoriaId) throws SQLException {
+	public static List<Categoria> listar(Categoria categoria) throws SQLException {
 		
-        final Connection conexion = new ConexionFactory().RecuperaConexion();
-        
-        try(conexion){
-        
-		final PreparedStatement statement = conexion.prepareStatement("SELECT ID, NOMBRE, DESCRIPCION, CANTIDAD, C)");
-		statement.execute();
-		
-		try(statement){
-			
-		ResultSet resultset =  statement.getResultSet();
-		
-		List<Producto> resultado = new ArrayList<>();
-		
-		while(resultset.next()) {
-			
-			Producto fila = new Producto(resultset.getInt("ID"), resultset.getString("NOMBRE"), resultset.getString("DESCRIPCION"), (resultset.getInt("CANTIDAD")));
-			resultado.add(fila);
-			
-		}
-					
-		return resultado;
-		}
+		List<Categoria> resultado = new ArrayList<>();
+
+        try {
+       
+            final PreparedStatement statement = conexion.prepareStatement(
+            		"SELECT ID, NOMBRE, DESCRIPCION, CANTIDAD "
+            	            + " FROM PRODUCTO WHERE CATEGORIA_ID = ?");
+    
+            try (statement) {
+                statement.setInt(1, categoria.getId());
+                statement.execute();
+    
+                final ResultSet resultSet = statement.getResultSet();
+    
+                try (resultSet) {
+                    while (resultSet.next()) {
+                        resultado.add(new Producto(
+                                resultSet.getInt("ID"),
+                                resultSet.getString("NOMBRE"),
+                                resultSet.getString("DESCRIPCION"),
+                                resultSet.getInt("CANTIDAD")));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+
+        return resultado;
+    }
+	
+    public int modificar(String nombre, String descripcion, Integer cantidad, Integer id) {
+        try {
+            final PreparedStatement statement = conexion.prepareStatement(
+                    "UPDATE PRODUCTO SET "
+                    + " NOMBRE = ?, "
+                    + " DESCRIPCION = ?,"
+                    + " CANTIDAD = ?"
+                    + " WHERE ID = ?");
+
+            try (statement) {
+                statement.setString(1, nombre);
+                statement.setString(2, descripcion);
+                statement.setInt(3, cantidad);
+                statement.setInt(4, id);
+                statement.execute();
+
+                int updateCount = statement.getUpdateCount();
+
+                return updateCount;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    public int eliminar(Integer id) {
+        try {
+            final PreparedStatement statement = conexion.prepareStatement("DELETE FROM PRODUCTO WHERE ID = ?");
+
+            try (statement) {
+                statement.setInt(1, id);
+                statement.execute();
+
+                int updateCount = statement.getUpdateCount();
+
+                return updateCount;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 	}
-	}
+	
 
 
 

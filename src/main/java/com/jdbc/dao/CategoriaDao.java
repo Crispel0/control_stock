@@ -32,7 +32,6 @@ public class CategoriaDao {
 						
 				}
 					while(resultset.next()) {
-						
 						var categoria = new Categoria(resultset.getInt("ID"),
 						resultset.getString("NOMBRE"));
 						

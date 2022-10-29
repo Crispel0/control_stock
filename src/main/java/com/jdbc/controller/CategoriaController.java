@@ -1,6 +1,6 @@
 package com.jdbc.controller;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 import com.jdbc.dao.CategoriaDao;
@@ -17,7 +17,7 @@ public class CategoriaController {
 	}
 
 	public List<Categoria> listar() {
-		return CategoriaDao.listar();
+		return categoriaDao.listar();
 	}
 	
 	//Retorna una lista de Categoria //

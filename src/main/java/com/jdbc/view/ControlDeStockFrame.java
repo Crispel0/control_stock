@@ -190,13 +190,16 @@ public class ControlDeStockFrame extends JFrame {
                     Integer id = (Integer) modelo.getValueAt(tabla.getSelectedRow(), 0);
                     String nombre = (String) modelo.getValueAt(tabla.getSelectedRow(), 1);
                     String descripcion = (String) modelo.getValueAt(tabla.getSelectedRow(), 2);
+                    Integer cantidad = Integer.valueOf(modelo.getValueAt(tabla.getSelectedRow(), 3).toString());
 
                    
-						this.productoController.modificar(nombre, descripcion,id);
+						var filasModificadas = this.productoController.modificar(nombre, descripcion,cantidad, id);
+						
+						
+						JOptionPane.showMessageDialog(this, String.format("%d item modificado con éxito!", filasModificadas));
+                }, () -> JOptionPane.showMessageDialog(this, "Por favor, elije un item"));
+        
                 }	
-                , () -> JOptionPane.showMessageDialog(this, "Por favor, elije un item"));
-                
-    }
 
     private void eliminar() {
         if (tieneFilaElegida()) {
